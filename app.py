@@ -40,35 +40,209 @@ from src.reporter import (
 
 st.set_page_config(
     page_title="Umbrales · Análisis de Narrativas Juveniles",
-    page_icon="📊",
+    page_icon="🎨",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Estilos
+# Estilos — identidad visual Crear Vale la Pena
+# Paleta: naranja #F0921E · violeta #7B4BAD · coral #E8566A
+#         durazno #FBCBA8 · lila #C9A0DC · oscuro #3D3D3D
 # ──────────────────────────────────────────────────────────────────────────────
 
 st.markdown("""
 <style>
-    .stApp { background-color: #f8f9fa; }
-    .metric-card {
-        background: white;
-        border-radius: 8px;
-        padding: 16px;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-        text-align: center;
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Nunito', sans-serif;
+        color: #3D3D3D;
     }
-    .categoria-protector { border-left: 4px solid #28a745; }
-    .categoria-estresor  { border-left: 4px solid #dc3545; }
-    .categoria-neutro    { border-left: 4px solid #6c757d; }
+
+    /* Fondo general */
+    .stApp { background-color: #FFF8F2; }
+
+    /* ── Sidebar ── */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #7B4BAD 0%, #5C3185 100%);
+    }
+    [data-testid="stSidebar"] * {
+        color: #FFFFFF !important;
+    }
+    [data-testid="stSidebar"] .stSlider > div > div > div {
+        background: #C9A0DC;
+    }
+    [data-testid="stSidebar"] hr {
+        border-color: rgba(255,255,255,0.25);
+    }
+
+    /* ── Header principal ── */
+    .cvlp-header {
+        background: linear-gradient(135deg, #7B4BAD 0%, #5C3185 60%, #3D3D3D 100%);
+        border-radius: 16px;
+        padding: 32px 36px;
+        margin-bottom: 24px;
+        color: white;
+    }
+    .cvlp-header h1 {
+        color: #F0921E !important;
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0 0 8px 0;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+    .cvlp-header p {
+        color: #F5E6FF;
+        font-size: 1rem;
+        margin: 0;
+    }
+    .cvlp-badge {
+        display: inline-block;
+        background: #F0921E;
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 20px;
+        margin-top: 10px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    /* ── Títulos de sección ── */
+    h2 {
+        color: #F0921E !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 3px solid #FBCBA8;
+        padding-bottom: 6px;
+    }
+    h3 {
+        color: #7B4BAD !important;
+        font-weight: 700 !important;
+    }
+
+    /* ── Botones primarios ── */
+    .stButton > button[kind="primary"],
+    div[data-testid="stFormSubmitButton"] > button {
+        background: linear-gradient(135deg, #E8566A, #C93B50) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 30px !important;
+        font-weight: 700 !important;
+        font-size: 0.95rem !important;
+        padding: 10px 24px !important;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        box-shadow: 0 4px 12px rgba(232,86,106,0.35) !important;
+        transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+    }
+    .stButton > button[kind="primary"]:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 18px rgba(232,86,106,0.45) !important;
+    }
+
+    /* ── Botones secundarios y descarga ── */
+    .stButton > button:not([kind="primary"]),
+    .stDownloadButton > button {
+        background: white !important;
+        color: #7B4BAD !important;
+        border: 2px solid #7B4BAD !important;
+        border-radius: 30px !important;
+        font-weight: 700 !important;
+        padding: 8px 20px !important;
+        transition: background 0.15s ease !important;
+    }
+    .stButton > button:not([kind="primary"]):hover,
+    .stDownloadButton > button:hover {
+        background: #F5EEFF !important;
+    }
+
+    /* ── Info / alertas ── */
+    [data-testid="stAlert"] {
+        border-radius: 12px !important;
+        border-left: 5px solid #F0921E !important;
+        background: #FFF3E0 !important;
+        color: #3D3D3D !important;
+    }
+
+    /* ── Métricas ── */
+    [data-testid="stMetric"] {
+        background: white;
+        border-radius: 14px;
+        padding: 16px !important;
+        box-shadow: 0 2px 10px rgba(123,75,173,0.10);
+        border-top: 4px solid #F0921E;
+    }
+    [data-testid="stMetricValue"] {
+        color: #7B4BAD !important;
+        font-weight: 800 !important;
+        font-size: 1.8rem !important;
+    }
+    [data-testid="stMetricLabel"] {
+        color: #3D3D3D !important;
+        font-weight: 600 !important;
+    }
+
+    /* ── Tablas / DataFrames ── */
+    [data-testid="stDataFrame"] {
+        border-radius: 12px !important;
+        overflow: hidden;
+        border: 1px solid #E8D5F5 !important;
+    }
+
+    /* ── Expanders ── */
+    [data-testid="stExpander"] {
+        border: 1px solid #E8D5F5 !important;
+        border-radius: 12px !important;
+        background: white;
+    }
+
+    /* ── File uploader ── */
+    [data-testid="stFileUploader"] {
+        border: 2px dashed #C9A0DC !important;
+        border-radius: 12px !important;
+        background: #FDFAFF !important;
+    }
+
+    /* ── Selectbox / sliders ── */
+    [data-testid="stSelectbox"] > div,
+    [data-testid="stNumberInput"] > div {
+        border-radius: 10px !important;
+    }
+
+    /* ── Cajas de metodología (sidebar) ── */
     .metodologia-box {
-        background: #e8f4f8;
-        border: 1px solid #bee5eb;
-        border-radius: 6px;
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 10px;
         padding: 12px 16px;
-        font-size: 0.9em;
-        color: #0c5460;
+        font-size: 0.88em;
+        color: #F5E6FF;
+        line-height: 1.6;
+    }
+
+    /* ── Categorías en resultados ── */
+    .categoria-protector { border-left: 4px solid #F0921E; }
+    .categoria-estresor  { border-left: 4px solid #E8566A; }
+    .categoria-neutro    { border-left: 4px solid #C9A0DC; }
+
+    /* ── Footer ── */
+    .cvlp-footer {
+        margin-top: 48px;
+        background: #3D3D3D;
+        border-radius: 16px;
+        padding: 20px 28px;
+        text-align: center;
+        color: #C9A0DC;
+        font-size: 0.85em;
+    }
+    .cvlp-footer span {
+        color: #F0921E;
+        font-weight: 700;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -78,11 +252,11 @@ st.markdown("""
 # ──────────────────────────────────────────────────────────────────────────────
 
 with st.sidebar:
-    st.title("Umbrales")
-    st.caption("Análisis de Narrativas Juveniles")
+    st.markdown("## 🎨 Umbrales")
+    st.markdown("*Análisis de Narrativas Juveniles*")
     st.divider()
 
-    st.subheader("Parámetros del análisis")
+    st.markdown("### Parámetros")
     umbral = st.slider(
         "Umbral de clasificación",
         min_value=0.01,
@@ -114,18 +288,25 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
     st.divider()
-    st.caption("v1.0.0 · Talleres Umbrales")
+    st.markdown("<small>v1.1.0 · Fundación Crear Vale la Pena</small>", unsafe_allow_html=True)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Encabezado principal
 # ──────────────────────────────────────────────────────────────────────────────
 
-st.title("Análisis de Narrativas Juveniles")
-st.markdown(
-    "Herramienta para el análisis sistemático de textos producidos por jóvenes "
-    "en talleres educativos. Identifica patrones temáticos vinculados a "
-    "**factores protectores** y **estresores** en la vida de los jóvenes."
-)
+st.markdown("""
+<div class="cvlp-header">
+    <h1>Análisis de Narrativas Juveniles</h1>
+    <p>
+        Herramienta para el análisis sistemático de textos producidos por jóvenes
+        en talleres educativos. Identifica patrones temáticos vinculados a
+        <strong style="color:#FBCBA8">factores protectores</strong> y
+        <strong style="color:#F4A0A8">estresores</strong> en la vida de los jóvenes.
+    </p>
+    <span class="cvlp-badge">Fundación Crear Vale la Pena · Talleres Umbrales</span>
+</div>
+""", unsafe_allow_html=True)
+
 st.info(
     "Este sistema realiza *análisis sistemático de narrativas juveniles con "
     "herramientas de lenguaje*. No constituye diagnóstico clínico ni epidemiológico.",
@@ -495,3 +676,11 @@ else:
     )
     st.markdown("**Formato esperado:** el archivo debe tener una columna con los textos.")
     st.markdown("**Columnas opcionales:** región, taller, género, u otras variables de agrupación.")
+
+# ── Footer ────────────────────────────────────────────────────────────────────
+st.markdown("""
+<div class="cvlp-footer">
+    © <span>Fundación Crear Vale la Pena</span> · Talleres Umbrales ·
+    Herramienta de análisis de narrativas juveniles
+</div>
+""", unsafe_allow_html=True)
