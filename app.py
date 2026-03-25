@@ -64,17 +64,25 @@ st.markdown("""
     .stApp { background-color: #FFF8F2; }
 
     /* ── Sidebar ── */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #7B4BAD 0%, #5C3185 100%);
+    section[data-testid="stSidebar"],
+    section[data-testid="stSidebar"] > div,
+    section[data-testid="stSidebar"] > div:first-child,
+    [data-testid="stSidebar"],
+    [data-testid="stSidebar"] > div {
+        background: linear-gradient(180deg, #7B4BAD 0%, #5C3185 100%) !important;
     }
-    [data-testid="stSidebar"] * {
+    section[data-testid="stSidebar"] p,
+    section[data-testid="stSidebar"] span,
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3,
+    section[data-testid="stSidebar"] small,
+    section[data-testid="stSidebar"] div {
         color: #FFFFFF !important;
     }
-    [data-testid="stSidebar"] .stSlider > div > div > div {
-        background: #C9A0DC;
-    }
-    [data-testid="stSidebar"] hr {
-        border-color: rgba(255,255,255,0.25);
+    section[data-testid="stSidebar"] hr {
+        border-color: rgba(255,255,255,0.25) !important;
     }
 
     /* ── Header principal ── */
