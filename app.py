@@ -147,6 +147,15 @@ with col_upload:
         help="El archivo debe tener al menos una columna con los textos a analizar.",
     )
 
+    _plantilla_csv = "ID,Texto,Provincia,Localidad seleccionada\n"
+    st.download_button(
+        label="Descargar plantilla CSV",
+        data=_plantilla_csv,
+        file_name="plantilla_umbrales.csv",
+        mime="text/csv",
+        help="Plantilla con las columnas esperadas para cargar tus datos.",
+    )
+
 with col_demo:
     st.markdown("**¿No tenés datos?**")
     if st.button("Cargar dataset de ejemplo", use_container_width=True):
