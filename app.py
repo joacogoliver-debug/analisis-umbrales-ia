@@ -6,6 +6,7 @@ Aplicación Streamlit con autenticación por roles (admin / usuario).
 
 import json
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
 import pandas as pd
@@ -48,118 +49,200 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
-    html, body, [class*="css"] { font-family: 'Nunito', sans-serif; color: #3D3D3D; }
-    .stApp { background-color: #FFF8F2; }
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&display=swap');
 
+    html, body, [class*="css"] {
+        font-family: 'Nunito', sans-serif;
+        color: #2D2D2D;
+    }
+    .stApp { background-color: #F7F5FF; }
+
+    /* ── Sidebar: blanco con borde violeta ── */
     section[data-testid="stSidebar"],
     section[data-testid="stSidebar"] > div,
     section[data-testid="stSidebar"] > div:first-child {
-        background: linear-gradient(180deg, #7B4BAD 0%, #5C3185 100%) !important;
+        background: #FFFFFF !important;
+        border-right: 3px solid #E8D5F5 !important;
     }
     section[data-testid="stSidebar"] p,
     section[data-testid="stSidebar"] span,
     section[data-testid="stSidebar"] label,
-    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] small { color: #3D3D3D !important; }
     section[data-testid="stSidebar"] h2,
-    section[data-testid="stSidebar"] h3,
-    section[data-testid="stSidebar"] small,
-    section[data-testid="stSidebar"] div { color: #FFFFFF !important; }
-    section[data-testid="stSidebar"] hr { border-color: rgba(255,255,255,0.25) !important; }
+    section[data-testid="stSidebar"] h3 { color: #7B4BAD !important; }
+    section[data-testid="stSidebar"] hr { border-color: #E8D5F5 !important; }
 
+    /* ── Header ── */
     .cvlp-header {
-        background: linear-gradient(135deg, #7B4BAD 0%, #5C3185 60%, #3D3D3D 100%);
-        border-radius: 16px; padding: 32px 36px; margin-bottom: 24px; color: white;
+        background: linear-gradient(120deg, #7B4BAD 0%, #9B6BC8 50%, #F0921E 100%);
+        border-radius: 20px; padding: 28px 36px; margin-bottom: 28px;
+        display: flex; align-items: center; gap: 24px;
+        box-shadow: 0 6px 24px rgba(123,75,173,0.20);
     }
-    .cvlp-header h1 {
-        color: #F0921E !important; font-size: 2rem; font-weight: 800;
-        margin: 0 0 8px 0; letter-spacing: 1px; text-transform: uppercase;
+    .cvlp-header-text h1 {
+        color: #FFFFFF !important; font-size: 1.8rem; font-weight: 900;
+        margin: 0 0 4px 0; letter-spacing: 0.5px; text-transform: uppercase;
     }
-    .cvlp-header p { color: #F5E6FF; font-size: 1rem; margin: 0; }
+    .cvlp-header-text p { color: rgba(255,255,255,0.88); font-size: 0.95rem; margin: 0; }
     .cvlp-badge {
-        display: inline-block; background: #F0921E; color: white;
-        font-size: 0.7rem; font-weight: 700; padding: 3px 10px;
-        border-radius: 20px; margin-top: 10px; text-transform: uppercase;
+        display: inline-block; background: rgba(255,255,255,0.25);
+        color: white; font-size: 0.68rem; font-weight: 800; padding: 3px 12px;
+        border-radius: 20px; margin-top: 8px; text-transform: uppercase;
+        letter-spacing: 0.8px; border: 1px solid rgba(255,255,255,0.4);
     }
 
+    /* ── Login card ── */
+    .login-card {
+        background: white; border-radius: 24px; padding: 40px;
+        box-shadow: 0 8px 32px rgba(123,75,173,0.12);
+        border-top: 5px solid #F0921E;
+    }
+
+    /* ── Títulos de sección ── */
     h2 {
-        color: #F0921E !important; font-weight: 800 !important;
-        text-transform: uppercase; border-bottom: 3px solid #FBCBA8; padding-bottom: 6px;
+        color: #F0921E !important; font-weight: 900 !important;
+        letter-spacing: 0.3px; margin-top: 8px !important;
     }
     h3 { color: #7B4BAD !important; font-weight: 700 !important; }
 
+    /* ── Botones ── */
     .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #E8566A, #C93B50) !important;
-        color: white !important; border: none !important; border-radius: 30px !important;
-        font-weight: 700 !important; text-transform: uppercase;
-        box-shadow: 0 4px 12px rgba(232,86,106,0.35) !important;
+        background: #E8566A !important; color: white !important;
+        border: none !important; border-radius: 50px !important;
+        font-weight: 800 !important; font-size: 0.9rem !important;
+        padding: 10px 28px !important; letter-spacing: 0.5px;
+        box-shadow: 0 4px 14px rgba(232,86,106,0.40) !important;
+        transition: all 0.2s ease !important;
+    }
+    .stButton > button[kind="primary"]:hover {
+        background: #C93B50 !important;
+        box-shadow: 0 6px 20px rgba(232,86,106,0.50) !important;
+        transform: translateY(-1px) !important;
     }
     .stButton > button:not([kind="primary"]),
     .stDownloadButton > button {
         background: white !important; color: #7B4BAD !important;
-        border: 2px solid #7B4BAD !important; border-radius: 30px !important;
-        font-weight: 700 !important;
+        border: 2px solid #C9A0DC !important; border-radius: 50px !important;
+        font-weight: 700 !important; transition: all 0.2s ease !important;
+    }
+    .stButton > button:not([kind="primary"]):hover,
+    .stDownloadButton > button:hover {
+        background: #F5EEFF !important; border-color: #7B4BAD !important;
     }
 
-    [data-testid="stAlert"] {
-        border-radius: 12px !important; border-left: 5px solid #F0921E !important;
-        background: #FFF3E0 !important;
-    }
+    /* ── Métricas ── */
     [data-testid="stMetric"] {
-        background: white; border-radius: 14px; padding: 16px !important;
-        box-shadow: 0 2px 10px rgba(123,75,173,0.10); border-top: 4px solid #F0921E;
+        background: white; border-radius: 16px; padding: 20px !important;
+        box-shadow: 0 2px 12px rgba(123,75,173,0.08);
+        border-top: 4px solid #F0921E;
     }
-    [data-testid="stMetricValue"] { color: #7B4BAD !important; font-weight: 800 !important; }
-    [data-testid="stDataFrame"] { border-radius: 12px !important; border: 1px solid #E8D5F5 !important; }
-    [data-testid="stExpander"] { border: 1px solid #E8D5F5 !important; border-radius: 12px !important; }
+    [data-testid="stMetricValue"] { color: #7B4BAD !important; font-weight: 900 !important; font-size: 2rem !important; }
+    [data-testid="stMetricLabel"] { color: #666 !important; font-weight: 600 !important; font-size: 0.85rem !important; }
+
+    /* ── Alertas ── */
+    [data-testid="stAlert"] {
+        border-radius: 14px !important; border-left: 5px solid #F0921E !important;
+        background: #FFF8F0 !important;
+    }
+
+    /* ── Tablas ── */
+    [data-testid="stDataFrame"] {
+        border-radius: 14px !important; border: 1px solid #EDE0F7 !important;
+        overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    /* ── Expanders ── */
+    [data-testid="stExpander"] {
+        border: 1px solid #EDE0F7 !important; border-radius: 14px !important;
+        background: white; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    /* ── File uploader ── */
     [data-testid="stFileUploader"] {
-        border: 2px dashed #C9A0DC !important; border-radius: 12px !important; background: #FDFAFF !important;
+        border: 2px dashed #C9A0DC !important;
+        border-radius: 16px !important; background: #FDFAFF !important;
     }
+
+    /* ── Tabs ── */
+    [data-testid="stTabs"] [role="tab"] {
+        font-weight: 700 !important; color: #7B4BAD !important;
+    }
+    [data-testid="stTabs"] [role="tab"][aria-selected="true"] {
+        color: #F0921E !important; border-bottom-color: #F0921E !important;
+    }
+
+    /* ── Sidebar elementos especiales ── */
+    .sidebar-user-card {
+        background: linear-gradient(135deg, #7B4BAD, #9B6BC8);
+        border-radius: 14px; padding: 14px 16px; color: white; margin-bottom: 8px;
+    }
+    .sidebar-user-card strong { font-size: 1rem; display: block; }
+    .sidebar-user-card span { font-size: 0.8rem; opacity: 0.85; }
     .metodologia-box {
-        background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
-        border-radius: 10px; padding: 12px 16px; font-size: 0.88em; color: #F5E6FF; line-height: 1.6;
+        background: #F5EEFF; border: 1px solid #C9A0DC;
+        border-radius: 12px; padding: 12px 14px; font-size: 0.85em;
+        color: #5C3185; line-height: 1.6;
     }
+
+    /* ── Footer ── */
     .cvlp-footer {
-        margin-top: 48px; background: #3D3D3D; border-radius: 16px;
-        padding: 20px 28px; text-align: center; color: #C9A0DC; font-size: 0.85em;
+        margin-top: 56px; padding: 20px 0 8px 0;
+        text-align: center; color: #999; font-size: 0.82em;
+        border-top: 1px solid #EDE0F7;
     }
-    .cvlp-footer span { color: #F0921E; font-weight: 700; }
-    .estado-pendiente { color: #F0921E; font-weight: 700; }
-    .estado-aprobado  { color: #28a745; font-weight: 700; }
-    .estado-rechazado { color: #E8566A; font-weight: 700; }
-    .login-box {
-        max-width: 420px; margin: 0 auto; background: white;
-        border-radius: 20px; padding: 36px; box-shadow: 0 4px 24px rgba(123,75,173,0.15);
-    }
+    .cvlp-footer strong { color: #7B4BAD; }
 </style>
 """, unsafe_allow_html=True)
 
 # ── LOGIN ──────────────────────────────────────────────────────────────────────
 
-def _show_login() -> None:
-    st.markdown("""
-    <div class="cvlp-header">
-        <h1>Umbrales</h1>
-        <p>Análisis de Narrativas Juveniles · Iniciá sesión para continuar.</p>
-        <span class="cvlp-badge">Fundación Crear Vale la Pena</span>
-    </div>""", unsafe_allow_html=True)
+LOGO_PATH = Path("assets/logo.png")
 
+def _render_header(subtitulo: str = "") -> None:
+    """Renderiza el header principal con logo si existe."""
+    col_logo, col_txt = st.columns([1, 5])
+    with col_logo:
+        if LOGO_PATH.exists():
+            st.image(str(LOGO_PATH), width=110)
+    with col_txt:
+        st.markdown(f"""
+        <div class="cvlp-header-text" style="padding: 4px 0;">
+            <h1>Umbrales · Análisis de Narrativas Juveniles</h1>
+            <p>{subtitulo}</p>
+            <span class="cvlp-badge">Fundación Crear Vale la Pena · Talleres Umbrales</span>
+        </div>""", unsafe_allow_html=True)
+    st.markdown("")
+
+
+def _show_login() -> None:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
+        # Logo centrado en login
+        if LOGO_PATH.exists():
+            st.image(str(LOGO_PATH), width=180)
+        else:
+            st.markdown("## 🎨 Crear Vale la Pena")
+
+        st.markdown('<div class="login-card">', unsafe_allow_html=True)
+        st.markdown("### Umbrales — Iniciá sesión")
+        st.markdown("*Análisis de Narrativas Juveniles*")
+        st.markdown("")
+
         with st.form("login_form"):
-            st.subheader("Iniciar sesión")
-            username = st.text_input("Usuario")
-            password = st.text_input("Contraseña", type="password")
+            username = st.text_input("Usuario", placeholder="tu usuario")
+            password = st.text_input("Contraseña", type="password", placeholder="••••••••")
             submitted = st.form_submit_button("Ingresar", type="primary", use_container_width=True)
 
-        if submitted:
-            user = verify_login(username, password)
-            if user:
-                st.session_state["user"] = user
-                st.rerun()
-            else:
-                with col2:
-                    st.error("Usuario o contraseña incorrectos.")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    if submitted:
+        user = verify_login(username, password)
+        if user:
+            st.session_state["user"] = user
+            st.rerun()
+        else:
+            with col2:
+                st.error("Usuario o contraseña incorrectos.")
 
 
 if "user" not in st.session_state:
@@ -172,11 +255,18 @@ role = user["role"]
 # ── SIDEBAR ────────────────────────────────────────────────────────────────────
 
 with st.sidebar:
-    st.markdown("## 🎨 Umbrales")
+    if LOGO_PATH.exists():
+        st.image(str(LOGO_PATH), width=140)
+    else:
+        st.markdown("## 🎨 Umbrales")
     st.markdown("*Análisis de Narrativas Juveniles*")
     st.divider()
-    st.markdown(f"**{user['nombre']}**")
-    st.markdown(f"*{'Administrador' if role == 'admin' else 'Usuario'}*")
+    rol_label = "Administrador" if role == "admin" else "Usuario"
+    st.markdown(
+        f'<div class="sidebar-user-card"><strong>{user["nombre"]}</strong>'
+        f'<span>{rol_label}</span></div>',
+        unsafe_allow_html=True,
+    )
     if st.button("Cerrar sesión", use_container_width=True):
         st.session_state.clear()
         st.rerun()
@@ -207,14 +297,10 @@ with st.sidebar:
 
 # ── HEADER ─────────────────────────────────────────────────────────────────────
 
-st.markdown("""
-<div class="cvlp-header">
-    <h1>Análisis de Narrativas Juveniles</h1>
-    <p>Herramienta para el análisis sistemático de textos producidos por jóvenes en talleres educativos.
-    Identifica patrones temáticos vinculados a <strong style="color:#FBCBA8">factores protectores</strong>
-    y <strong style="color:#F4A0A8">estresores</strong>.</p>
-    <span class="cvlp-badge">Fundación Crear Vale la Pena · Talleres Umbrales</span>
-</div>""", unsafe_allow_html=True)
+_render_header(
+    subtitulo="Herramienta para el análisis sistemático de textos producidos por jóvenes en talleres educativos. "
+              "Identifica patrones temáticos vinculados a factores protectores y estresores."
+)
 
 # ── HELPER: selectores de provincia/territorio ─────────────────────────────────
 
