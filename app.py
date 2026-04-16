@@ -386,7 +386,7 @@ def _tab_analisis() -> None:
         except Exception as e:
             st.error(f"Error al leer el archivo: {e}")
 
-    # ── Paso 2: Configurar columnas ───────────────────────────────────────────
+    # ── Detección automática de columnas ─────────────────────────────────────
     if "df_cargado" not in st.session_state:
         st.markdown("---")
         st.markdown("**Para comenzar:** subí un archivo o cargá el dataset de ejemplo.")
@@ -394,27 +394,26 @@ def _tab_analisis() -> None:
 
     df = st.session_state["df_cargado"]
 
-    st.header("2. Configurar columnas")
-    with st.expander("Vista previa del dataset", expanded=True):
-        st.dataframe(df.head(10), use_container_width=True)
-        st.caption(f"Dimensiones: {df.shape[0]} filas × {df.shape[1]} columnas")
+    # Auto-detectar columnas de la plantilla
+    cols = list(df.columns)
+    columna_texto = next((c for c in cols if c.strip().lower() == "texto"), None)
+    columna_id = next((c for c in cols if c.strip().lower() == "id"), None)
+    columna_agrupacion = next(
+        (c for c in cols if "localidad" in c.strip().lower() or "provincia" in c.strip().lower()),
+        None
+    )
 
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        columna_texto = st.selectbox(
-            "Columna con los textos *", options=list(df.columns),
-            help="Columna que contiene los textos escritos por los jóvenes.",
-        )
-    with col2:
-        cols_opc = ["(ninguna)"] + list(df.columns)
-        columna_id = st.selectbox("Columna ID (opcional)", options=cols_opc)
-        columna_id = None if columna_id == "(ninguna)" else columna_id
-    with col3:
-        columna_agrupacion = st.selectbox("Agrupar resultados por (opcional)", options=cols_opc)
-        columna_agrupacion = None if columna_agrupacion == "(ninguna)" else columna_agrupacion
+    # Si no encuentra la columna Texto, pedir al usuario que la indique
+    if columna_texto is None:
+        st.warning("No se encontró una columna llamada **Texto**. Seleccionala manualmente:")
+        columna_texto = st.selectbox("Columna con los textos", options=cols)
 
-    # ── Paso 3: Ejecutar análisis ─────────────────────────────────────────────
-    st.header("3. Ejecutar análisis")
+    # Vista previa compacta
+    with st.expander(f"Vista previa — {df.shape[0]} filas · {df.shape[1]} columnas"):
+        st.dataframe(df.head(8), use_container_width=True)
+
+    # ── Ejecutar análisis ─────────────────────────────────────────────────────
+    st.header("2. Ejecutar análisis")
 
     if st.button("Analizar textos", type="primary", use_container_width=True):
         with st.spinner("Analizando textos..."):
